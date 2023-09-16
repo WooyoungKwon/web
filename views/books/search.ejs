@@ -59,7 +59,7 @@
     $.ajax({
       type: "GET",
       url: "https://dapi.kakao.com/v3/search/book",
-      headers: { Authorization: `KakaoAK 1516d2c502f56b88f702da4d62d772a5` },
+      headers: { Authorization: "KakaoAK 1516d2c502f56b88f702da4d62d772a5" },
       data: { query: query, page: page, size: 6 },
       success: function (data) {
         console.log(data);
