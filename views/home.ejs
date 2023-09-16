@@ -1,5 +1,84 @@
 <div class="row my-5">
     <div class="col">
-        <h1 class="text-center">Home......</h1>
+        <div class="row justify-content-end">
+            <form class="col-6 col-lg-3 col-md-4" name="frm">
+                <div class="input-group">
+                    <input class="form-control" placeholder="검색어" name="query" value="자바">
+                    <button class="btn btn-primary">검색</button>
+                </div>
+            </form>
+        </div>
+        <hr>
+        <div id="div_books" class="row"></div>
+        <!-- 페이지 이동 -->
+        <div class="text-center">
+            <button id="prev" class="btn btn-primary">이전</button>
+            <span id="span_page">1/10</span>
+            <button id="next" class="btn btn-primary">다음</button>
+        </div>
     </div>
 </div>
+<!-- 도서 정보 출력 Template -->
+<script type="x-handlebars-template" id="temp_books">
+    {{#each documents}}
+        <div class="col-6 col-md-4 col-lg-2 mb-2">
+            <div class="card">
+                <div class="card-body">
+                    <img src="{{thumbnail}}" width="90%">
+                    <div class="ellipsis" text-center>{{title}}</div>
+                </div>
+                <div class="card-footer">
+                    {{price}}
+                </div>
+            </div>
+        </div>
+    {{/each}}
+</script>
+
+<script>
+    let query=$(frm.query).val();
+    let page=1;
+
+    $(frm).on("submit", function(e){
+        e.preventDefault();  // 페이지 깜빡임 처리
+        query=$(frm.query).val();
+        getBooks();
+    });
+    getBooks();
+
+
+    //Event of next button
+    $("#next").on("click", function(){
+        page++;
+        getBooks();
+    });
+
+    //Event of prev button
+    $("#prev").on("click", function(){
+        page--;
+        getBooks();
+    });
+
+    function getBooks(){
+        $.ajax({
+            type:"GET",
+            url:"https://dapi.kakao.com/v3/search/book?target=authors",
+            headers:{Authorization: `KakaoAK 1516d2c502f56b88f702da4d62d772a5`},
+            data:{query:query, page:page, size:6},
+            success:function(result){
+                console.log(result);
+                let temp=Handlebars.compile($("#temp_books").html());
+                $("#div_books").html(temp(result));
+
+                let last = Math.ceil(data.meta.pageable_count / 5);
+                $("#span_page").html(page + "/" + last);
+
+                if(page==1) $("#prev").attr("disabled", true);
+                else $("#prev").attr("disabled", false);
+
+                if(data.meta.is_end) $("#next").attr("disabled", true);
+                else $("#next").attr("disabled", false);
+            },
+        });
+    }
+</script>

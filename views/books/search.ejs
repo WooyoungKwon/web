@@ -1,7 +1,21 @@
 <div class="row my-5">
   <div class="col">
     <h1 class="text-center">도서 검색</h1>
+      <div class="row justify-content-end">
+        <form class="col-6 col-lg-3 col-md-4" name="frm">
+            <div class="input-group">
+                <input class="form-control" placeholder="검색어" name="query" value="자바">
+                <button class="btn btn-primary">검색</button>
+            </div>
+        </form>
+      </div>
     <div id="div_books"></div>
+      <!-- 페이지 이동 -->
+      <div class="text-center">
+        <button id="prev" class="btn btn-primary">이전</button>
+        <span id="span_page">1/10</span>
+        <button id="next" class="btn btn-primary">다음</button>
+      </div>
   </div>
 </div>
 <script type="x-handlebars-template" id="temp_books">
@@ -13,25 +27,53 @@
           <td>{{price}}</td>
           <td>{{authors}}</td>
       </tr>
-
       {{/each}}
   </table>
 </script>
 
 <script>
+  let query=$(frm.query).val();
+  let page=1;
+
+  $(frm).on("submit",function(e){
+    e.preventDefault();
+    query=$(frm.query).val();
+    getBooks();
+  });
   //도서 검색 데이터 불러오기
   getBooks();
 
+  //Event of next button
+  $("#next").on("click", function(){
+        page++;
+        getBooks();
+    });
+
+    //Event of prev button
+    $("#prev").on("click", function(){
+        page--;
+        getBooks();
+    });
+
   function getBooks() {
     $.ajax({
-      type: "get",
+      type: "GET",
       url: "https://dapi.kakao.com/v3/search/book",
       headers: { Authorization: `KakaoAK 1516d2c502f56b88f702da4d62d772a5` },
-      data: { query: "자바", page: 1, size: 5 },
+      data: { query: query, page: page, size: 6 },
       success: function (data) {
         console.log(data);
-        let temp = Handlebars.compile($("#temp_books").html());
+        let temp = Handlebars.compile($("#temp_books").html()); // #이 붙으면 id, .이 붙으면 class
         $("#div_books").html(temp(data));
+
+        let last = Math.ceil(data.meta.pageable_count / 5);
+        $("#span_page").html(page + "/" + last);
+
+        if(page==1) $("#prev").attr("disabled", true);
+        else $("#prev").attr("disabled", false);
+
+        if(data.meta.is_end) $("#next").attr("disabled", true);
+        else $("#next").attr("disabled", false);
       },
     });
   }
