@@ -13,11 +13,32 @@
             <a class="nav-link active" aria-current="page" href="/locals">지역검색</a>
           </li>
         </ul>
+        <!-- d-flex 우측 정렬 -->
         <ul class="navbar-nav d-flex">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">LOGIN</a>
-            </li>
+          <li class="nav-item" id="login">
+            <a class="nav-link active" aria-current="page" href="/users/login">LOGIN</a>
+          </li>
+          <li class="nav-item" id="email" style="display: none;">
+            <a class="nav-link active" aria-current="page" href="/users/mypage">email</a>
+          </li>
+          <li class="nav-item" id="logout" style="display: none;">
+            <a class="nav-link active" aria-current="page" href="/users/logout">LOGOUT</a>
+          </li>
           </ul>
       </div>
     </div>
 </nav>
+<script>
+  if(sessionStorage.getItem("email")){
+    $("#login, #email, #logout").toggle();
+    $("#email a").html(sessionStorage.getItem("email"));
+  }
+
+  $("#logout").on("click", "a", function(e){
+    e.preventDefault();
+    if(confirm("로가웃 ㄱ?")){
+      sessionStorage.clear();
+      location.href="/";
+    } else return;
+  });
+</script>

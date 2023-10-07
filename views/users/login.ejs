@@ -1,0 +1,60 @@
+<style>
+    form span {
+        width: 100px;
+    }
+</style>
+<!-- 위아래 마진 my -->
+<div class="row my-5 justify-content-center">
+    <div class="col-6">
+        <h1 class="text-center">로깅</h1>
+        <form name="frm" class="card p-3">
+            <div class="input-group mb-3">
+                <span class="input-group-text">이메일</span>
+                <input name="email" class="form-control" value="blue@test.com">
+            </div>            
+            <div class="input-group mb-3">
+                <span class="input-group-text">비밀번호</span>
+                <input name="password" class="form-control" type="password" value="12341234">
+            </div>
+            <button class="btn btn-primary w-100">로깅</button>
+        </form>
+        <div class="text-end mt-2">
+            <a href="/users/join">회원가입</a>
+        </div>
+    </div>
+</div>
+<script type="module">
+    import { app } from '/javascripts/firebaseInit.js';
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+    const auth = getAuth(app) 
+    // name이 아닌 id=frm으로 줬으면 #frm으로 넣어줘야 됨
+    $(frm).on("submit", function(e){
+        e.preventDefault();
+        const email=$(frm.email).val();
+        const password=$(frm.password).val()
+        // alert(email + password);
+        if(email==""){
+            alert("이메일을 입력하세요!");
+            // focus 깜빡이는 커서
+            $(frm.email).focus();
+        } else if(password==""){
+            alert("비밀번호를 입력하세요!");
+            $(frm.password).focus();
+        }else{
+            // 로그인 체크
+            signInWithEmailAndPassword(auth, email, password).then(success=> {
+                // 로그인 성공
+                console.log(success);
+                // 클라이언트 세션에 저장
+                sessionStorage.setItem("email", email);
+                sessionStorage.setItem("uid", success.user.uid);
+                alert("로그인 공성");
+                // 로그인 성공하면 루트로 이동  
+                location.href="/";
+            }).catch(error=>{
+                alert(error.message);
+                 // console.log(error.message);
+            });
+        }
+    });
+</script>

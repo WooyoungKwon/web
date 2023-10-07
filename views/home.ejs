@@ -1,9 +1,13 @@
+<style>
+    #div_books img{
+        cursor: pointer;
+    }
+    #div_books .card-footer .bi {
+        cursor: pointer;
+        color:green;
+    }
+</style>
 <div class="row my-5">
-    <style>
-        #div_books img{
-            cursor: pointer;
-        }
-    </style>
     <div class="col">
         <div class="row justify-content-end">
             <form class="col-6 col-lg-3 col-md-4" name="frm">
@@ -36,6 +40,8 @@
                 </div>
                 <div class="card-footer">
                     {{fmt_price price}}
+                    <!-- Handlebars.registerHelper("book", function(book)) -->
+                    <i class="bi bi-cart float-end" book="{{book @this}}"></i>
                 </div>
             </div>
         </div>
@@ -52,14 +58,41 @@
             return "https://via.placeholder.com/120x170";
         }
     });
-
     Handlebars.registerHelper("fmt_price", function(price){
         if(price) return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원';
     });
+    Handlebars.registerHelper("book", function(book){
+        return JSON.stringify(book);
+    });
 </script>
-<script>
+<script type="module">
+    import { app } from '/javascripts/firebaseInit.js';
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+    const db = getDatabase(app);
+
     let query=$(frm.query).val();
     let page=1;
+    // 장바구니 아이콘을 클릭했을 때
+    $("#div_books").on("click", ".bi-cart", async function(){
+        if(!sessionStorage.getItem("email")){
+            location.href="/users/login";
+        } else {
+            // 장바구니에 상품정보저장
+            const book=JSON.parse($(this).attr("book"));
+            console.log(book);
+            const ref_book = `cart/${sessionStorage.getItem('uid')}/${book.isbn}`;
+            // const ref_book = "/cart/" + sessionStorage.getItem("uid") + "/"
+            // 장바구니에 도서가 있는지 체크
+            const snapshot = await get(ref(db, ref_book));
+            if(snapshot.val()){
+                alert("이미 있음 ㅅㄱ");
+            }else{
+                if(!confirm("장바구니에 담으실?")) return;
+                set(ref(db, ref_book), book);
+                alert("슈웃");
+            }
+        }
+    });
     // 이미지를 클릭했을 때
     $("#div_books").on("click", "img", function(){
         let index=$(this).attr("index");
