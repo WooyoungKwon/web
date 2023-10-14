@@ -32,7 +32,7 @@
             rows.push(row.val());
         });
         console.log(rows);
-        const temp = Handlebars.compile($("temp_cart").html());
+        const temp = Handlebars.compile($("#temp_cart").html());
         $("#div_cart").html(temp(rows));
     });
     
