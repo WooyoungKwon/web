@@ -10,6 +10,7 @@
         <form name="frm" class="card p-3">
             <div class="input-group mb-3">
                 <span class="input-group-text">이메일</span>
+                <!-- 시험 : name 괄호 쳐놨음 -->
                 <input name="email" class="form-control" value="blue@test.com">
             </div>            
             <div class="input-group mb-3">
@@ -28,6 +29,7 @@
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
     const auth = getAuth(app) 
     // name이 아닌 id=frm으로 줬으면 #frm으로 넣어줘야 됨
+    // frm이 submit 될 때
     $(frm).on("submit", function(e){
         e.preventDefault();
         const email=$(frm.email).val();

@@ -11,6 +11,9 @@
           </li>
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="/locals">지역검색</a>
+          </li>          
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/books/cart">장바구니</a>
           </li>
         </ul>
         <!-- d-flex 우측 정렬 -->
@@ -30,6 +33,7 @@
 </nav>
 <script>
   if(sessionStorage.getItem("email")){
+    // toggle : 보이던 건 안 보이게, 안 보이던 건 보이도록
     $("#login, #email, #logout").toggle();
     $("#email a").html(sessionStorage.getItem("email"));
   }
