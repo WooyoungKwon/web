@@ -10,6 +10,7 @@
                 </div>
             </form>
         </div>
+        <hr>
         <div id="div_locals"></div>
         <!-- 페이지 이동 -->
         <div class="text-center">
@@ -27,11 +28,22 @@
             <td>{{place_name}}</td>
             <td>{{address_name}}</td>
             <td>{{phone}}</td>
+            <td><button class="btn btn-primary btn-sm" local="{{toString @this}}">즐겨찾기</button></td>
         </tr>
         {{/each}}
     </table>
 </script>
 <script>
+    Handlebars.registerHelper("toString", function(local){
+        // stringify -> Object를 String 형태로 바꿔줌
+        return JSON.stringify(local);
+    })
+</script>
+<script type="module">
+    import { app } from '/javascripts/firebaseInit.js';
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+    const db = getDatabase(app);
+
     let page=1;
     let query=$(frm.query).val();
     getLocals();
@@ -41,6 +53,28 @@
         page=1;
         getLocals();
     })
+
+    // 즐겨찾기 버튼 클릭 시
+    // async는 await와 짝꿍
+    $("#div_locals").on("click", ".btn-primary", async function(){
+        if(!sessionStorage.getItem("email")){
+            // target이라는 변수 안에 /locals이 저장
+            sessionStorage.setItem("target", "/locals");
+            location.href='/users/login';
+        } else { // 로그인이 된 경우
+            // JSON.parse -> String 형태로 바꾼 값을 다시 JSON Object로 바꿈
+            const local = JSON.parse($(this).attr("local"));
+            console.log(local);
+            const ref_local = `favorite/${sessionStorage.getItem("uid")}/${local.id}`;
+            const snapshot = await get(ref(db, ref_local));
+            if(snapshot.val()) {
+                alert("이미 등록되었")
+            } else {
+                await set(ref(db, ref_local), local);
+                alert("등록되었")
+            }
+        }
+    });
 
     //Event of next button
     $("#next").on("click", function(){
