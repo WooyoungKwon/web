@@ -53,6 +53,7 @@
                 alert("로그인 공성");
                 // 로그인 성공하면 루트로 이동 
                 if(sessionStorage.getItem("target")){
+                    console.log(sessionStorage.getItem("target"))
                     location.href = sessionStorage.getItem("target");
                 } else {
                     location.href="/";
