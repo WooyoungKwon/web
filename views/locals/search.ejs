@@ -59,6 +59,7 @@
     $("#div_locals").on("click", ".btn-primary", async function(){
         if(!sessionStorage.getItem("email")){
             // target이라는 변수 안에 /locals이 저장
+            // target = 돌아올 주소? 시험
             sessionStorage.setItem("target", "/locals");
             location.href='/users/login';
         } else { // 로그인이 된 경우
