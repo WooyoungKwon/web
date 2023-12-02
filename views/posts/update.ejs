@@ -1,0 +1,48 @@
+<div class="my-5">
+    <h1 class="text-center mb-5"><%=title%></h1>
+    <div id="div_post"></div>
+</div>
+<script id="temp_post" type="x=x-handlebars-template">
+    <form name="frm">
+        <!-- 전체 다 가져오려면 ""로 묶기 -->
+        <input value="{{title}}"
+            name="title" placeholder="제목을 입력하세요." class="form-control mb-2">
+        <textarea name="body" rows="10" class="form-control" placeholder="내dragon mouth력">{{body}}</textarea>
+        <div class="text-center mb-3">
+            <button class="btn btn-primary px-5">수정</button>
+            <button class="btn btn-secondary px-5" type="reset">취소</button>
+        </div>
+    </form>
+</script>
+
+<script type="module">
+    import { app } from "/javascripts/firebaseInit.js";
+    import { getFirestore, doc, getDoc, setDoc} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+    const db = getFirestore(app);
+    const id="<%=id%>";
+    const snapshot= await getDoc(doc(db, `posts/${id}`));
+    // console.log(snapshot)
+    const post = snapshot.data()
+    console.log(post)
+    
+    const temp = Handlebars.compile($("#temp_post").html());
+    $("#div_post").html(temp(post));
+
+    // submit은 무조건 submit 됨. 무조건 submit하기 싫으면 function(e) 받아와서 이벤트 처리
+    $(frm).on("submit", async function(e){
+        e.preventDefault();
+        if(confirm(`${id}번 글 크리스탈?`)){
+            // 수정하기
+            // title을 $(frm.title).val()로 바꿔준다
+            await setDoc(doc(db, `posts/${id}`), {
+                // 작성한 날짜, 작성자 이메일 등등이 들어가야 함.
+                // ...post 안하면 title이랑 body만 들어감
+                ...post, 
+                title:$(frm.title).val(),
+                body:$(frm.body).val()
+            });
+            alert("크리스탈 완료");
+            location.href="/posts";
+        }
+    })
+</script>

@@ -1,0 +1,81 @@
+<div class="my-5">
+    <h1 class="text-center">구독 좋아요 "댓글" 알림설정</h1>
+    <div id="div_insert" style="display: none;">
+        <textarea id="txt_body" class="form-control" rows="5"></textarea>
+        <div class="text-end mt-2">
+            <button id="btn-insert" class="btn btn-primary btn-sm px-5">등록징비록락앤록</button>
+        </div>
+    </div>
+    <div id="div_login">
+        <button id="btn-login" class="btn btn-primary w-100">로그인사람인</button>
+    </div>
+    <div class="mb-3">
+        <div>댓글 수: <span id="total"></span></div>
+    </div>
+    <div id="div_comments"></div>
+</div>
+
+<script id="temp_comments" type="x-handlebars-template">
+    {{#each .}}
+        <div>
+            <div>
+                <small>{{email}}</small>
+                <small>{{date}}</small>
+            </div>
+            <div>{{body}}</div>
+        </div>
+        <hr>
+    {{/each}}
+</script>
+
+<script type="module">
+    import { app } from "/javascripts/firebaseInit.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+    import { query,orderBy,getDocs,where,doc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+    const db = getFirestore(app);
+
+    const pid = "<%=id%>";
+    if(sessionStorage.getItem("email")){
+        console.log(sessionStorage.getItem("email"))
+        $("#div_insert, #div_login").toggle();
+    }
+
+    $("btn-login").on("click", function(){
+        // target에 "/posts/read?id=" + pid 지정
+        sessionStorage.setItem("target", "/posts/read?id=" + pid);
+        location.href="/user/login";
+    });
+
+    $("#btn-insert").on("click", async function(){
+        const date = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+        const email = sessionStorage.getItem("email");
+        const body = $("#txt_body").val();
+        if(body==""){
+            alert("빈칸빈칸빈칸빈칸빈칸빈칸빈칸")
+            $("#txt_body").focus();
+        } else {
+            // 댓글 저장
+            const data = {pid, email, date, body};
+            // collection -> firebase에 있는 컬렉션
+            await addDoc(collection(db, "comments"), data);
+            $("#txt_body").val("");
+            alert("저장완료칸")
+            // 댓글 추가하면 바로 업데이트 되도록 alert 밑에 추가
+            getComments();
+        }
+    });
+
+    getComments();
+    async function getComments() {
+        const q = query(collection(db, 'comments'), where("pid", "==", pid), orderBy("date", "desc"));
+        const snapshot = await getDocs(q);
+        $("#total").html(snapshot.docs.length);
+        let rows=[];
+        snapshot.docs.forEach(row=>{
+            rows.push({id: row.id, ...row.data()})
+        });
+        console.log(rows)
+        const temp = Handlebars.compile($("#temp_comments").html());
+        $("#div_comments").html(temp(rows));
+    }
+</script>
